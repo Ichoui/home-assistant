@@ -12,6 +12,8 @@ Le projet utilise Firebase Functions v2 et Firestore. Les conditions courantes e
 
 Le rendu utilise des Material Symbols SVG embarqués dans le projet. Les codes météo WMO sont associés aux icônes soleil, éclaircies jour/nuit, nuages, brouillard, pluie, pluie verglaçante, neige, orage et grêle. Aucun appel à Google Fonts n'est effectué pendant la génération de l'image.
 
+L'image présente les 24 prochaines heures sous forme de courbe de température avec six repères horaires, les conditions météo, les probabilités de précipitation significatives et les minimum/maximum directement positionnés sur la courbe. La palette et les panneaux translucides s'adaptent aux conditions actuelles.
+
 ## Prérequis
 
 - Node.js 22
@@ -130,4 +132,5 @@ La commande utilise le projet sélectionné par `firebase use`. Le déploiement 
 - L'API GeoMet annonce une syntaxe CQL2, mais son déploiement actuel accepte `filter-lang=cql-text` et rejette `cql2-text`.
 - Le mode de communication avec le SmallTV (`pull-url`, téléversement local ou firmware personnalisé) reste volontairement indéterminé jusqu'au test du matériel réel.
 - Les blocs `INT` et `EXT` sont prêts pour deux futurs capteurs Govee et affichent uniquement température et humidité.
+- Le tableau normalisé `hourly` contient les 24 prochaines heures à partir de l'observation Open-Meteo courante.
 - Aucun framework ni script de tests automatisés n'est inclus dans le projet.

@@ -49,7 +49,9 @@ export function weatherCodeIcon(
   code: number | null,
   isDay: boolean | null,
 ): WeatherIconName {
-  if (code === 0) return "weather-clear";
+  if (code === 0) {
+    return isDay === false ? "weather-partly-cloudy-night" : "weather-clear";
+  }
   if (code === 1 || code === 2) {
     return isDay === false ? "weather-partly-cloudy-night" : "weather-partly-cloudy-day";
   }

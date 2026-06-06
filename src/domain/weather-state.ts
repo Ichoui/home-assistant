@@ -19,6 +19,13 @@ export type WeatherState = {
     windDirectionDeg: number | null;
     precipitationMm: number | null;
   };
+  hourly: Array<{
+    time: string;
+    temperatureC: number | null;
+    weatherCode: number | null;
+    isDay: boolean | null;
+    precipitationProbabilityPct: number | null;
+  }>;
   daily: Array<{
     date: string;
     weatherCode: number | null;
