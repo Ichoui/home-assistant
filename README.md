@@ -130,6 +130,7 @@ La commande utilise le projet sélectionné par `firebase use`. Le déploiement 
 
 - Le filtre MétéoCAN utilise `INTERSECTS(geometry,POINT(-70.67 46.117))`, dans l'ordre longitude puis latitude.
 - L'API GeoMet annonce une syntaxe CQL2, mais son déploiement actuel accepte `filter-lang=cql-text` et rejette `cql2-text`.
+- Les alertes conservent la couleur de risque officielle MétéoCAN (`risk_colour_fr`) et leur date de publication. Le PNG utilise cette couleur sans inventer de niveau lorsque le champ est absent.
 - Le mode de communication avec le SmallTV (`pull-url`, téléversement local ou firmware personnalisé) reste volontairement indéterminé jusqu'au test du matériel réel.
 - Les blocs `INT` et `EXT` sont prêts pour deux futurs capteurs Govee et affichent uniquement température et humidité.
 - Le tableau normalisé `hourly` contient les 24 prochaines heures à partir de l'observation Open-Meteo courante.

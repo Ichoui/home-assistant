@@ -8,6 +8,7 @@ type HourlyPoint = WeatherState["hourly"][number];
 
 type Palette = {
   backgroundTop: string;
+  backgroundMiddle: string;
   backgroundBottom: string;
   accent: string;
   accentSoft: string;
@@ -47,55 +48,61 @@ function windArrowRotation(degrees: number | null): number {
 function paletteFor(code: number | null, isDay: boolean | null): Palette {
   if (isDay === false) {
     return {
-      backgroundTop: "#07101f",
-      backgroundBottom: "#152743",
-      accent: "#9cc7ff",
+      backgroundTop: "#050b18",
+      backgroundMiddle: "#0d2240",
+      backgroundBottom: "#18365a",
+      accent: "#a8ceff",
       accentSoft: "#5279b4",
-      glow: "#234c88",
+      glow: "#315f9f",
     };
   }
   if ([95, 96, 99].includes(code ?? -1)) {
     return {
-      backgroundTop: "#17162e",
-      backgroundBottom: "#3c315b",
-      accent: "#d9c1ff",
+      backgroundTop: "#100d22",
+      backgroundMiddle: "#292044",
+      backgroundBottom: "#4b3967",
+      accent: "#dfc9ff",
       accentSoft: "#8b6dc1",
-      glow: "#7252ac",
+      glow: "#825fc2",
     };
   }
   if ([71, 73, 75, 77, 85, 86].includes(code ?? -1)) {
     return {
-      backgroundTop: "#102432",
-      backgroundBottom: "#3c6574",
-      accent: "#e4f7ff",
+      backgroundTop: "#0b1c28",
+      backgroundMiddle: "#285163",
+      backgroundBottom: "#72a5b4",
+      accent: "#e9faff",
       accentSoft: "#91c9d8",
-      glow: "#77c4dc",
+      glow: "#a7e7f5",
     };
   }
   if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code ?? -1)) {
     return {
-      backgroundTop: "#071827",
-      backgroundBottom: "#194c68",
-      accent: "#78d6ff",
+      backgroundTop: "#06131f",
+      backgroundMiddle: "#0e3852",
+      backgroundBottom: "#23769a",
+      accent: "#83dcff",
       accentSoft: "#2c8fba",
-      glow: "#1b779f",
+      glow: "#37a8d1",
     };
   }
   if ([3, 45, 48].includes(code ?? -1)) {
     return {
-      backgroundTop: "#101a28",
-      backgroundBottom: "#35485d",
-      accent: "#c8dded",
-      accentSoft: "#708da4",
-      glow: "#5c7f99",
+      backgroundTop: "#0d1723",
+      backgroundMiddle: "#293d50",
+      backgroundBottom: "#60788c",
+      accent: "#d4e6f2",
+      accentSoft: "#7895ab",
+      glow: "#8aabc1",
     };
   }
   return {
-    backgroundTop: "#09223a",
-    backgroundBottom: "#176b8c",
-    accent: "#ffd768",
-    accentSoft: "#69c7e8",
-    glow: "#49b8e2",
+    backgroundTop: "#10253a",
+    backgroundMiddle: "#287692",
+    backgroundBottom: "#e1a83f",
+    accent: "#ffdd6e",
+    accentSoft: "#67c9e9",
+    glow: "#ffd45e",
   };
 }
 
@@ -115,8 +122,8 @@ function curveGeometry(points: HourlyPoint[]): {
   const usable = points.filter((point) => point.temperatureC !== null);
   if (usable.length === 0) {
     return {
-      linePath: "M14 132 L226 132",
-      areaPath: "M14 132 L226 132 L226 151 L14 151 Z",
+      linePath: "M5 146 L235 146",
+      areaPath: "M5 146 L235 146 L235 169 L5 169 Z",
       coordinates: [],
       minIndex: -1,
       maxIndex: -1,
@@ -128,8 +135,8 @@ function curveGeometry(points: HourlyPoint[]): {
   const maximum = Math.max(...temperatures);
   const range = Math.max(4, maximum - minimum);
   const coordinates = usable.map((point, index) => ({
-    x: 14 + (212 * index) / Math.max(1, usable.length - 1),
-    y: 145 - (((point.temperatureC as number) - minimum) / range) * 28,
+    x: 5 + (230 * index) / Math.max(1, usable.length - 1),
+    y: 158 - (((point.temperatureC as number) - minimum) / range) * 34,
     point,
   }));
 
@@ -139,21 +146,22 @@ function curveGeometry(points: HourlyPoint[]): {
     const middleX = (previous.x + coordinate.x) / 2;
     return `${path} Q${middleX.toFixed(1)} ${previous.y.toFixed(1)} ${coordinate.x.toFixed(1)} ${coordinate.y.toFixed(1)}`;
   }, "");
-  const areaPath = `${linePath} L226 151 L14 151 Z`;
-  const minIndex = temperatures.indexOf(minimum);
-  const maxIndex = temperatures.indexOf(maximum);
 
-  return { linePath, areaPath, coordinates, minIndex, maxIndex };
+  return {
+    linePath,
+    areaPath: `${linePath} L235 169 L5 169 Z`,
+    coordinates,
+    minIndex: temperatures.indexOf(minimum),
+    maxIndex: temperatures.indexOf(maximum),
+  };
 }
 
-function extremaLabels(
-  geometry: ReturnType<typeof curveGeometry>,
-): string {
+function extremaLabels(geometry: ReturnType<typeof curveGeometry>): string {
   return geometry.coordinates
     .map((coordinate, index) => {
       if (index !== geometry.minIndex && index !== geometry.maxIndex) return "";
       const isMaximum = index === geometry.maxIndex;
-      const x = Math.min(221, Math.max(19, coordinate.x));
+      const x = Math.min(234, Math.max(8, coordinate.x));
       const y = isMaximum ? coordinate.y - 5 : coordinate.y + 10;
       return `<text x="${x}" y="${y}" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="7" font-weight="700">${isMaximum ? "↑" : "↓"}${displayNumber(coordinate.point.temperatureC)}°</text>`;
     })
@@ -164,35 +172,76 @@ function hourlyMarkers(points: HourlyPoint[], palette: Palette): string {
   const sampled = sampleHourly(points);
   return sampled
     .map((point, index) => {
-      const x = 15 + (210 * index) / Math.max(1, sampled.length - 1);
+      const x = 8 + (224 * index) / Math.max(1, sampled.length - 1);
       const precipitation = point.precipitationProbabilityPct ?? 0;
-      return `${renderIcon(
-        weatherCodeIcon(point.weatherCode, point.isDay),
-        x - 7,
-        98,
-        14,
-        index === 0 ? "#ffffff" : palette.accent,
-      )}
-        <text x="${x}" y="96" text-anchor="middle" fill="#dce8f2" font-family="Arial, sans-serif" font-size="6.5">${hourLabel(point.time)}</text>
-        ${precipitation >= 30 ? `<text x="${x}" y="158" text-anchor="middle" fill="#8ddcff" font-family="Arial, sans-serif" font-size="6">${Math.round(precipitation)}%</text>` : ""}`;
+      return `<text x="${x}" y="96" text-anchor="middle" fill="#dce8f2" font-family="Arial, sans-serif" font-size="6.5">${hourLabel(point.time)}</text>
+        ${renderIcon(
+          weatherCodeIcon(point.weatherCode, point.isDay),
+          x - 7,
+          99,
+          14,
+          index === 0 ? "#ffffff" : palette.accent,
+        )}
+        ${precipitation >= 30 ? `<text x="${x}" y="168" text-anchor="middle" fill="#a9e6ff" font-family="Arial, sans-serif" font-size="6">${Math.round(precipitation)}%</text>` : ""}`;
     })
     .join("");
 }
 
-function sensorCard(
+function sensorZone(
   x: number,
   label: "INT" | "EXT",
   temperatureC: number | null,
   humidityPct: number | null,
   accent: string,
 ): string {
-  return `<rect x="${x}" y="166" width="103" height="34" rx="10" fill="url(#glass)" stroke="rgba(255,255,255,0.16)" stroke-width="0.7"/>
-    ${renderIcon(label === "INT" ? "metric-indoor" : "metric-temperature", x + 7, 174, 17, accent)}
-    <text x="${x + 28}" y="176" fill="#b8cad8" font-family="Arial, sans-serif" font-size="7" font-weight="700">${label}</text>
-    ${renderIcon("metric-temperature", x + 28, 181, 11, "#dce8f2")}
-    <text x="${x + 41}" y="191" fill="#ffffff" font-family="Arial, sans-serif" font-size="10" font-weight="700">${displayNumber(temperatureC)}°</text>
-    ${renderIcon("metric-humidity", x + 64, 181, 11, "#dce8f2")}
-    <text x="${x + 77}" y="191" fill="#ffffff" font-family="Arial, sans-serif" font-size="9" font-weight="700">${displayNumber(humidityPct)}%</text>`;
+  return `${renderIcon(label === "INT" ? "metric-indoor" : "metric-temperature", x, 180, 16, accent)}
+    <text x="${x + 20}" y="184" fill="#c8d8e4" font-family="Arial, sans-serif" font-size="7" font-weight="700">${label}</text>
+    ${renderIcon("metric-temperature", x + 20, 189, 11, "#e5eef5")}
+    <text x="${x + 34}" y="199" fill="#ffffff" font-family="Arial, sans-serif" font-size="10" font-weight="700">${displayNumber(temperatureC)}°</text>
+    ${renderIcon("metric-humidity", x + 59, 189, 11, "#e5eef5")}
+    <text x="${x + 73}" y="199" fill="#ffffff" font-family="Arial, sans-serif" font-size="9" font-weight="700">${displayNumber(humidityPct)}%</text>`;
+}
+
+function alertPresentation(alert: WeatherState["alerts"][number] | undefined): {
+  background: string;
+  text: string;
+  label: string;
+  published: string | null;
+} | null {
+  if (!alert) return null;
+  const normalizedColor = alert.riskColor?.trim().toLowerCase() ?? "";
+  const colors: Record<string, { background: string; text: string; label: string }> = {
+    jaune: { background: "#f4c542", text: "#302500", label: "jaune" },
+    yellow: { background: "#f4c542", text: "#302500", label: "jaune" },
+    orange: { background: "#f08a24", text: "#281300", label: "orange" },
+    rouge: { background: "#c93645", text: "#ffffff", label: "rouge" },
+    red: { background: "#c93645", text: "#ffffff", label: "rouge" },
+  };
+  const color = colors[normalizedColor] ?? {
+    background: "#ffffff",
+    text: "#0b1727",
+    label: "",
+  };
+  const event = alert.event ?? alert.title ?? "Alerte météo";
+  const titlePrefix = alert.title?.toLowerCase().startsWith("avertissement")
+    ? "Avertissement"
+    : "Alerte";
+  const label = color.label
+    ? `${titlePrefix} ${color.label} · ${event}`
+    : `${titlePrefix} · ${event}`;
+  let published: string | null = null;
+  if (alert.publishedAt) {
+    const publicationDate = new Date(alert.publishedAt);
+    if (!Number.isNaN(publicationDate.getTime())) {
+      published = new Intl.DateTimeFormat("fr-CA", {
+        timeZone: TIME_ZONE,
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(publicationDate);
+    }
+  }
+  return { ...color, label, published };
 }
 
 export function buildSmallTvSvg(state: WeatherState): string {
@@ -202,8 +251,7 @@ export function buildSmallTvSvg(state: WeatherState): string {
     minute: "2-digit",
     hour12: false,
   }).format(new Date(state.updatedAt));
-  const alertText = state.alerts[0]?.title ?? "Aucun avis météo";
-  const hasAlert = state.alerts.length > 0;
+  const alert = alertPresentation(state.alerts[0]);
   const condition = state.current.conditionLabelFr ?? "Conditions indisponibles";
   const windDirection = windDirectionLabel(state.current.windDirectionDeg);
   const weatherIcon = weatherCodeIcon(state.current.weatherCode, state.current.isDay);
@@ -213,59 +261,74 @@ export function buildSmallTvSvg(state: WeatherState): string {
 
   return `<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <linearGradient id="background" x1="0" y1="0" x2="0.85" y2="1">
         <stop offset="0" stop-color="${palette.backgroundTop}"/>
+        <stop offset="0.58" stop-color="${palette.backgroundMiddle}"/>
         <stop offset="1" stop-color="${palette.backgroundBottom}"/>
       </linearGradient>
-      <linearGradient id="wave" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="${palette.accent}" stop-opacity="0.42"/>
+      <linearGradient id="glassOverlay" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#ffffff" stop-opacity="0.14"/>
+        <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.035"/>
+        <stop offset="1" stop-color="#ffffff" stop-opacity="0.09"/>
+      </linearGradient>
+      <linearGradient id="wave" x1="0" y1="118" x2="0" y2="169" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="${palette.accent}" stop-opacity="0.48"/>
         <stop offset="1" stop-color="${palette.accentSoft}" stop-opacity="0.04"/>
       </linearGradient>
-      <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#ffffff" stop-opacity="0.16"/>
-        <stop offset="1" stop-color="#ffffff" stop-opacity="0.06"/>
-      </linearGradient>
-      <radialGradient id="glow">
-        <stop offset="0" stop-color="${palette.glow}" stop-opacity="0.55"/>
+      <radialGradient id="topGlow">
+        <stop offset="0" stop-color="${palette.glow}" stop-opacity="0.62"/>
         <stop offset="1" stop-color="${palette.glow}" stop-opacity="0"/>
       </radialGradient>
+      <radialGradient id="bottomGlow">
+        <stop offset="0" stop-color="#ffffff" stop-opacity="0.13"/>
+        <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+      </radialGradient>
+      <clipPath id="waveClip">
+        <rect x="3" y="91" width="234" height="79" rx="3"/>
+      </clipPath>
     </defs>
 
-    <rect width="240" height="240" rx="18" fill="url(#background)"/>
-    <circle cx="204" cy="22" r="78" fill="url(#glow)"/>
-    <circle cx="20" cy="172" r="65" fill="url(#glow)" opacity="0.45"/>
+    <rect width="240" height="240" fill="url(#background)"/>
+    <circle cx="207" cy="14" r="92" fill="url(#topGlow)"/>
+    <circle cx="19" cy="206" r="82" fill="url(#bottomGlow)"/>
+    <rect width="240" height="240" fill="url(#glassOverlay)"/>
+    <path d="M-20 46 Q70 12 151 34 T270 12" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="18"/>
 
-    <text x="11" y="17" fill="#ffffff" font-family="Arial, sans-serif" font-size="10" font-weight="700">${escapeXml(state.location.name)}</text>
-    <text x="229" y="17" text-anchor="end" fill="#d0dfeb" font-family="Arial, sans-serif" font-size="8">${time}</text>
+    <text x="5" y="13" fill="#ffffff" font-family="Arial, sans-serif" font-size="9" font-weight="700">${escapeXml(state.location.name)}</text>
+    <text x="235" y="13" text-anchor="end" fill="#d9e6ef" font-family="Arial, sans-serif" font-size="7">${time}</text>
 
-    <rect x="10" y="25" width="220" height="64" rx="14" fill="url(#glass)" stroke="rgba(255,255,255,0.19)" stroke-width="0.8"/>
-    ${renderIcon(weatherIcon, 18, 32, 45, palette.accent)}
-    <text x="69" y="61" fill="#ffffff" font-family="Arial, sans-serif" font-size="30" font-weight="700">${displayNumber(state.current.temperatureC)}°</text>
-    <text x="70" y="75" fill="${palette.accent}" font-family="Arial, sans-serif" font-size="9" font-weight="700">${escapeXml(condition.slice(0, 23))}</text>
-    <text x="70" y="84" fill="#c3d4e1" font-family="Arial, sans-serif" font-size="7">Ressenti ${displayNumber(state.current.apparentTemperatureC)}°</text>
+    ${renderIcon(weatherIcon, 6, 22, 48, palette.accent)}
+    <text x="58" y="54" fill="#ffffff" font-family="Arial, sans-serif" font-size="32" font-weight="700">${displayNumber(state.current.temperatureC)}°</text>
+    <text x="59" y="68" fill="${palette.accent}" font-family="Arial, sans-serif" font-size="9" font-weight="700">${escapeXml(condition.slice(0, 23))}</text>
+    <text x="59" y="79" fill="#d0dee8" font-family="Arial, sans-serif" font-size="7">Ressenti ${displayNumber(state.current.apparentTemperatureC)}°</text>
 
-    ${renderIcon("metric-humidity", 151, 36, 15, palette.accent)}
-    <text x="171" y="48" fill="#ffffff" font-family="Arial, sans-serif" font-size="10" font-weight="700">${displayNumber(state.current.humidityPct)}%</text>
-    ${renderIcon("metric-wind", 151, 61, 15, palette.accent)}
-    <text x="171" y="72" fill="#ffffff" font-family="Arial, sans-serif" font-size="9" font-weight="700">${displayNumber(state.current.windSpeedKmh)}</text>
-    <text x="188" y="72" fill="#c3d4e1" font-family="Arial, sans-serif" font-size="6">km/h</text>
-    <g transform="translate(216 67) rotate(${windArrowRotation(state.current.windDirectionDeg)})">
-      <path d="M0 7 L0 -7 M0 -7 L-3.5 -2 M0 -7 L3.5 -2" stroke="${palette.accent}" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    ${renderIcon("metric-humidity", 151, 28, 15, palette.accent)}
+    <text x="171" y="40" fill="#ffffff" font-family="Arial, sans-serif" font-size="10" font-weight="700">${displayNumber(state.current.humidityPct)}%</text>
+    ${renderIcon("metric-wind", 151, 55, 15, palette.accent)}
+    <text x="171" y="66" fill="#ffffff" font-family="Arial, sans-serif" font-size="9" font-weight="700">${displayNumber(state.current.windSpeedKmh)}</text>
+    <text x="188" y="66" fill="#d0dee8" font-family="Arial, sans-serif" font-size="6">km/h</text>
+    <g transform="translate(220 58) rotate(${windArrowRotation(state.current.windDirectionDeg)})">
+      <path d="M0 8 L0 -8 M0 -8 L-4 -2 M0 -8 L4 -2" stroke="${palette.accent}" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
-    <text x="216" y="82" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="7" font-weight="700">${windDirection}</text>
+    <text x="220" y="77" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="7" font-weight="700">${windDirection}</text>
 
-    <rect x="10" y="93" width="220" height="68" rx="13" fill="url(#glass)" stroke="rgba(255,255,255,0.15)" stroke-width="0.7"/>
+    <line x1="5" y1="86" x2="235" y2="86" stroke="#ffffff" stroke-opacity="0.16" stroke-width="0.7"/>
+    <g clip-path="url(#waveClip)">
+      <path d="${geometry.areaPath}" fill="url(#wave)"/>
+      <path d="${geometry.linePath}" fill="none" stroke="${palette.accent}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      ${geometry.coordinates[0] ? `<circle cx="${geometry.coordinates[0].x}" cy="${geometry.coordinates[0].y}" r="3" fill="#ffffff" stroke="${palette.accent}" stroke-width="1.4"/>` : ""}
+      ${extremaLabels(geometry)}
+    </g>
     ${hourlyMarkers(hourly, palette)}
-    <path d="${geometry.areaPath}" fill="url(#wave)"/>
-    <path d="${geometry.linePath}" fill="none" stroke="${palette.accent}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-    ${geometry.coordinates[0] ? `<circle cx="${geometry.coordinates[0].x}" cy="${geometry.coordinates[0].y}" r="3" fill="#ffffff" stroke="${palette.accent}" stroke-width="1.5"/>` : ""}
-    ${extremaLabels(geometry)}
 
-    ${sensorCard(10, "INT", state.indoor?.temperatureC ?? null, state.indoor?.humidityPct ?? null, palette.accent)}
-    ${sensorCard(127, "EXT", state.outdoor?.temperatureC ?? null, state.outdoor?.humidityPct ?? null, palette.accent)}
+    <line x1="5" y1="174" x2="235" y2="174" stroke="#ffffff" stroke-opacity="0.15" stroke-width="0.7"/>
+    ${sensorZone(8, "INT", state.indoor?.temperatureC ?? null, state.indoor?.humidityPct ?? null, palette.accent)}
+    <line x1="120" y1="179" x2="120" y2="203" stroke="#ffffff" stroke-opacity="0.13" stroke-width="0.7"/>
+    ${sensorZone(127, "EXT", state.outdoor?.temperatureC ?? null, state.outdoor?.humidityPct ?? null, palette.accent)}
 
-    <rect x="10" y="207" width="220" height="23" rx="9" fill="${hasAlert ? "#a92835" : "rgba(7,16,31,0.28)"}" stroke="rgba(255,255,255,0.12)" stroke-width="0.6"/>
-    <text x="120" y="222" text-anchor="middle" fill="${hasAlert ? "#ffffff" : "#b7c8d5"}" font-family="Arial, sans-serif" font-size="${hasAlert ? 8 : 7}" font-weight="${hasAlert ? 700 : 400}">${escapeXml(alertText.slice(0, 42))}</text>
+    ${alert ? `<rect x="0" y="224" width="240" height="16" fill="${alert.background}" fill-opacity="0.94"/>
+      <text x="5" y="235" fill="${alert.text}" font-family="Arial, sans-serif" font-size="7" font-weight="700">${escapeXml(alert.label.slice(0, 43))}</text>
+      ${alert.published ? `<text x="235" y="235" text-anchor="end" fill="${alert.text}" fill-opacity="0.8" font-family="Arial, sans-serif" font-size="6">${alert.published}</text>` : ""}` : `<text x="120" y="237" text-anchor="middle" fill="#d0dee8" fill-opacity="0.54" font-family="Arial, sans-serif" font-size="5.5">Aucun avis</text>`}
   </svg>`;
 }
 

@@ -40,8 +40,10 @@ export type WeatherState = {
     title: string | null;
     event: string | null;
     severity: string | null;
+    riskColor: string | null;
     urgency: string | null;
     certainty: string | null;
+    publishedAt: string | null;
     effectiveAt: string | null;
     expiresAt: string | null;
     areaDescription: string | null;
