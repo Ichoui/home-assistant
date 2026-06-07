@@ -1,8 +1,8 @@
 import { getFirestore } from "firebase-admin/firestore";
 import { HOME_LOCATION } from "../config.js";
 import type { WeatherState } from "../domain/weather-state.js";
-import { fetchMeteoCanAlerts } from "../providers/meteo-can/index.js";
-import { fetchOpenMeteo } from "../providers/open-meteo/index.js";
+import { fetchMeteoCanAlerts } from "../providers/meteo-can";
+import { fetchOpenMeteo } from "../providers/open-meteo";
 
 const WEATHER_DOCUMENT = "weather/home";
 

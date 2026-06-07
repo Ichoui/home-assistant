@@ -2,11 +2,45 @@ import { weatherCodeLabelFr } from "../../domain/weather-codes.js";
 import type { WeatherState } from "../../domain/weather-state.js";
 import { fetchJson } from "../http.js";
 
-type OpenMeteoResponse = {
-  current?: Record<string, unknown>;
-  hourly?: Record<string, unknown>;
-  daily?: Record<string, unknown>;
-};
+export interface OpenMeteoCurrentDto {
+  time?: string;
+  temperature_2m?: number | null;
+  apparent_temperature?: number | null;
+  relative_humidity_2m?: number | null;
+  weather_code?: number | null;
+  is_day?: number | null;
+  wind_speed_10m?: number | null;
+  wind_direction_10m?: number | null;
+  precipitation?: number | null;
+}
+
+export interface OpenMeteoHourlyDto {
+  time?: Array<string | null>;
+  temperature_2m?: Array<number | null>;
+  weather_code?: Array<number | null>;
+  is_day?: Array<number | null>;
+  precipitation_probability?: Array<number | null>;
+}
+
+export interface OpenMeteoDailyDto {
+  time?: Array<string | null>;
+  weather_code?: Array<number | null>;
+  temperature_2m_min?: Array<number | null>;
+  temperature_2m_max?: Array<number | null>;
+  precipitation_probability_max?: Array<number | null>;
+  sunrise?: Array<string | null>;
+  sunset?: Array<string | null>;
+}
+
+export interface OpenMeteoForecastDto {
+  latitude?: number;
+  longitude?: number;
+  timezone?: string;
+  utc_offset_seconds?: number;
+  current?: OpenMeteoCurrentDto;
+  hourly?: OpenMeteoHourlyDto;
+  daily?: OpenMeteoDailyDto;
+}
 
 const asNumber = (value: unknown): number | null =>
   typeof value === "number" && Number.isFinite(value) ? value : null;
@@ -31,7 +65,7 @@ export function buildOpenMeteoUrl(latitude: number, longitude: number): URL {
   );
   url.searchParams.set(
     "daily",
-    "weather_code,temperature_2m_min,temperature_2m_max,precipitation_probability_max",
+    "weather_code,temperature_2m_min,temperature_2m_max,precipitation_probability_max,sunrise,sunset",
   );
   url.searchParams.set("forecast_days", "7");
   url.searchParams.set("timezone", "America/Toronto");
@@ -41,7 +75,7 @@ export function buildOpenMeteoUrl(latitude: number, longitude: number): URL {
 export function mapOpenMeteo(
   data: unknown,
 ): Pick<WeatherState, "current" | "hourly" | "daily"> {
-  const response = data as OpenMeteoResponse;
+  const response = data as OpenMeteoForecastDto;
   const current = response.current ?? {};
   const hourly = response.hourly ?? {};
   const daily = response.daily ?? {};
@@ -98,6 +132,8 @@ export function mapOpenMeteo(
         precipitationProbabilityMaxPct: asNumber(
           arrayValue(daily.precipitation_probability_max, index),
         ),
+        sunriseAt: asString(arrayValue(daily.sunrise, index)),
+        sunsetAt: asString(arrayValue(daily.sunset, index)),
       };
     }),
   };

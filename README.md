@@ -14,6 +14,8 @@ Le rendu utilise des Material Symbols SVG embarqués dans le projet. Les codes m
 
 L'image présente les 24 prochaines heures sous forme de courbe de température avec six repères horaires, les conditions météo, les probabilités de précipitation significatives et les minimum/maximum directement positionnés sur la courbe. La palette et les panneaux translucides s'adaptent aux conditions actuelles.
 
+Les horaires quotidiens de lever et coucher du soleil proviennent des champs `sunrise` et `sunset` d'Open-Meteo et sont affichés dans la partie supérieure du PNG.
+
 ## Prérequis
 
 - Node.js 22

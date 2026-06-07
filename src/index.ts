@@ -3,7 +3,7 @@ import { logger } from "firebase-functions";
 import { onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { renderSmallTvPng } from "./render/smalltv";
-import { getWeatherState, refreshWeatherState } from "./services/weather.js";
+import {getWeatherState, refreshWeatherState} from "./services/weather.js";
 
 initializeApp();
 

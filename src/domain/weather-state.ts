@@ -33,6 +33,8 @@ export type WeatherState = {
     temperatureMinC: number | null;
     temperatureMaxC: number | null;
     precipitationProbabilityMaxPct: number | null;
+    sunriseAt: string | null;
+    sunsetAt: string | null;
   }>;
   alerts: Array<{
     source: "meteo-can";

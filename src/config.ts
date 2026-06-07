@@ -6,4 +6,12 @@ export const HOME_LOCATION = {
   longitude: -70.67,
 } as const;
 
+const QUEBEC_LOCATION = {
+  name: "Québec",
+  region: "Québec",
+  country: "Canada",
+  latitude: 46.8139,
+  longitude: -71.2080
+} as const
+
 export const TIME_ZONE = "America/Toronto";

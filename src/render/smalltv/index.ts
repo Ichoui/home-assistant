@@ -35,6 +35,28 @@ const hourLabel = (time: string): string => {
   return match ? `${Number(match[1])}h` : "--";
 };
 
+const solarTimeLabel = (time: string | null | undefined): string => {
+  if (!time) return "--:--";
+  return time.match(/T(\d{2}:\d{2})/)?.[1] ?? "--:--";
+};
+
+function renderSolarEventIcon(
+  kind: "sunrise" | "sunset",
+  x: number,
+  y: number,
+): string {
+  const sunColor = kind === "sunrise" ? "#ffbf3f" : "#ffe5a3";
+  const horizonColor = kind === "sunrise" ? "#ff8a3d" : "#bda8ff";
+  const arrowPath = kind === "sunrise"
+    ? "M8 10V4 M5.5 6.5 8 4l2.5 2.5"
+    : "M8 4v6 M5.5 7.5 8 10l2.5-2.5";
+  return `<svg x="${x}" y="${y}" width="12" height="12" viewBox="0 0 16 16">
+    <path d="M3 10a5 5 0 0 1 10 0" fill="none" stroke="${sunColor}" stroke-width="1.7" stroke-linecap="round"/>
+    <path d="M1.5 11.5h13" stroke="${horizonColor}" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="${arrowPath}" fill="none" stroke="${sunColor}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+
 export function windDirectionLabel(degrees: number | null): string {
   if (degrees === null) return "--";
   const directions = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"];
@@ -256,6 +278,9 @@ export function buildSmallTvSvg(state: WeatherState): string {
   const palette = paletteFor(state.current.weatherCode, state.current.isDay);
   const hourly = state.hourly ?? [];
   const geometry = curveGeometry(hourly);
+  const today = state.daily?.[0];
+  const sunrise = solarTimeLabel(today?.sunriseAt);
+  const sunset = solarTimeLabel(today?.sunsetAt);
 
   return `<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -294,6 +319,11 @@ export function buildSmallTvSvg(state: WeatherState): string {
 
     <text x="5" y="13" fill="#ffffff" font-family="Arial, sans-serif" font-size="9" font-weight="700">${escapeXml(state.location.name)}</text>
     <text x="235" y="13" text-anchor="end" fill="#d9e6ef" font-family="Arial, sans-serif" font-size="7">${time}</text>
+
+    ${renderSolarEventIcon("sunrise", 150, 14)}
+    <text x="163" y="23" fill="#fff0c7" font-family="Arial, sans-serif" font-size="6.5" font-weight="700">${sunrise}</text>
+    ${renderSolarEventIcon("sunset", 195, 14)}
+    <text x="208" y="23" fill="#ece4ff" font-family="Arial, sans-serif" font-size="6.5" font-weight="700">${sunset}</text>
 
     ${renderIcon(weatherIcon, 6, 22, 48)}
     <text x="58" y="54" fill="#ffffff" font-family="Arial, sans-serif" font-size="32" font-weight="700">${displayNumber(state.current.temperatureC)}°</text>
