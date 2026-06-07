@@ -180,7 +180,6 @@ function hourlyMarkers(points: HourlyPoint[], palette: Palette): string {
           x - 7,
           99,
           14,
-          index === 0 ? "#ffffff" : palette.accent,
         )}
         ${precipitation >= 30 ? `<text x="${x}" y="168" text-anchor="middle" fill="#a9e6ff" font-family="Arial, sans-serif" font-size="6">${Math.round(precipitation)}%</text>` : ""}`;
     })
@@ -192,13 +191,12 @@ function sensorZone(
   label: "INT" | "EXT",
   temperatureC: number | null,
   humidityPct: number | null,
-  accent: string,
 ): string {
-  return `${renderIcon(label === "INT" ? "metric-indoor" : "metric-temperature", x, 180, 16, accent)}
+  return `${renderIcon(label === "INT" ? "metric-indoor" : "metric-temperature", x, 180, 16)}
     <text x="${x + 20}" y="184" fill="#c8d8e4" font-family="Arial, sans-serif" font-size="7" font-weight="700">${label}</text>
-    ${renderIcon("metric-temperature", x + 20, 189, 11, "#e5eef5")}
+    ${renderIcon("metric-temperature", x + 20, 189, 11)}
     <text x="${x + 34}" y="199" fill="#ffffff" font-family="Arial, sans-serif" font-size="10" font-weight="700">${displayNumber(temperatureC)}°</text>
-    ${renderIcon("metric-humidity", x + 59, 189, 11, "#e5eef5")}
+    ${renderIcon("metric-humidity", x + 59, 189, 11)}
     <text x="${x + 73}" y="199" fill="#ffffff" font-family="Arial, sans-serif" font-size="9" font-weight="700">${displayNumber(humidityPct)}%</text>`;
 }
 
@@ -297,14 +295,14 @@ export function buildSmallTvSvg(state: WeatherState): string {
     <text x="5" y="13" fill="#ffffff" font-family="Arial, sans-serif" font-size="9" font-weight="700">${escapeXml(state.location.name)}</text>
     <text x="235" y="13" text-anchor="end" fill="#d9e6ef" font-family="Arial, sans-serif" font-size="7">${time}</text>
 
-    ${renderIcon(weatherIcon, 6, 22, 48, palette.accent)}
+    ${renderIcon(weatherIcon, 6, 22, 48)}
     <text x="58" y="54" fill="#ffffff" font-family="Arial, sans-serif" font-size="32" font-weight="700">${displayNumber(state.current.temperatureC)}°</text>
     <text x="59" y="68" fill="${palette.accent}" font-family="Arial, sans-serif" font-size="9" font-weight="700">${escapeXml(condition.slice(0, 23))}</text>
     <text x="59" y="79" fill="#d0dee8" font-family="Arial, sans-serif" font-size="7">Ressenti ${displayNumber(state.current.apparentTemperatureC)}°</text>
 
-    ${renderIcon("metric-humidity", 151, 28, 15, palette.accent)}
+    ${renderIcon("metric-humidity", 151, 28, 15)}
     <text x="171" y="40" fill="#ffffff" font-family="Arial, sans-serif" font-size="10" font-weight="700">${displayNumber(state.current.humidityPct)}%</text>
-    ${renderIcon("metric-wind", 151, 55, 15, palette.accent)}
+    ${renderIcon("metric-wind", 151, 55, 15)}
     <text x="171" y="66" fill="#ffffff" font-family="Arial, sans-serif" font-size="9" font-weight="700">${displayNumber(state.current.windSpeedKmh)}</text>
     <text x="188" y="66" fill="#d0dee8" font-family="Arial, sans-serif" font-size="6">km/h</text>
     <g transform="translate(220 58) rotate(${windArrowRotation(state.current.windDirectionDeg)})">
@@ -322,9 +320,9 @@ export function buildSmallTvSvg(state: WeatherState): string {
     ${hourlyMarkers(hourly, palette)}
 
     <line x1="5" y1="174" x2="235" y2="174" stroke="#ffffff" stroke-opacity="0.15" stroke-width="0.7"/>
-    ${sensorZone(8, "INT", state.indoor?.temperatureC ?? null, state.indoor?.humidityPct ?? null, palette.accent)}
+    ${sensorZone(8, "INT", state.indoor?.temperatureC ?? null, state.indoor?.humidityPct ?? null)}
     <line x1="120" y1="179" x2="120" y2="203" stroke="#ffffff" stroke-opacity="0.13" stroke-width="0.7"/>
-    ${sensorZone(127, "EXT", state.outdoor?.temperatureC ?? null, state.outdoor?.humidityPct ?? null, palette.accent)}
+    ${sensorZone(127, "EXT", state.outdoor?.temperatureC ?? null, state.outdoor?.humidityPct ?? null)}
 
     ${alert ? `<rect x="0" y="224" width="240" height="16" fill="${alert.background}" fill-opacity="0.94"/>
       <text x="5" y="235" fill="${alert.text}" font-family="Arial, sans-serif" font-size="7" font-weight="700">${escapeXml(alert.label.slice(0, 43))}</text>

@@ -10,7 +10,7 @@ Le projet utilise Firebase Functions v2 et Firestore. Les conditions courantes e
 - `getWeather` retourne le document `WeatherState` en JSON.
 - `getSmallTvImage` génère une image PNG 240×240 depuis le dernier état enregistré.
 
-Le rendu utilise des Material Symbols SVG embarqués dans le projet. Les codes météo WMO sont associés aux icônes soleil, éclaircies jour/nuit, nuages, brouillard, pluie, pluie verglaçante, neige, orage et grêle. Aucun appel à Google Fonts n'est effectué pendant la génération de l'image.
+Le rendu utilise des Material Symbols SVG embarqués dans le projet. Les codes météo WMO sont associés aux icônes soleil, éclaircies jour/nuit, nuages, brouillard, pluie, pluie verglaçante, neige, orage et grêle. Les silhouettes sont peintes en couches avec des couleurs sémantiques et restent lisibles dans les petits repères horaires. Aucun appel à Google Fonts n'est effectué pendant la génération de l'image.
 
 L'image présente les 24 prochaines heures sous forme de courbe de température avec six repères horaires, les conditions météo, les probabilités de précipitation significatives et les minimum/maximum directement positionnés sur la courbe. La palette et les panneaux translucides s'adaptent aux conditions actuelles.
 
