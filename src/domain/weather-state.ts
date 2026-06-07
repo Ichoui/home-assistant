@@ -1,3 +1,12 @@
+export type OpenMeteoModel = "best_match" | "gem_seamless";
+
+export type WeatherForecast = {
+  model: OpenMeteoModel;
+  current: WeatherState["current"];
+  hourly: WeatherState["hourly"];
+  daily: WeatherState["daily"];
+};
+
 export type WeatherState = {
   location: {
     name: string;
@@ -7,6 +16,7 @@ export type WeatherState = {
     longitude: number;
   };
   updatedAt: string;
+  forecastModel: OpenMeteoModel;
   current: {
     source: "open-meteo";
     temperatureC: number | null;
@@ -65,3 +75,8 @@ export type WeatherState = {
     updatedAt: string | null;
   };
 };
+
+export type WeatherComparisonState = Pick<
+  WeatherState,
+  "location" | "updatedAt" | "forecastModel" | "current" | "hourly" | "daily"
+>;

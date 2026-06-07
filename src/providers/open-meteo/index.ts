@@ -1,5 +1,8 @@
 import { weatherCodeLabelFr } from "../../domain/weather-codes.js";
-import type { WeatherState } from "../../domain/weather-state.js";
+import type {
+  OpenMeteoModel,
+  WeatherForecast,
+} from "../../domain/weather-state.js";
 import { fetchJson } from "../http.js";
 
 export interface OpenMeteoCurrentDto {
@@ -51,7 +54,11 @@ const asString = (value: unknown): string | null =>
 const arrayValue = (value: unknown, index: number): unknown =>
   Array.isArray(value) ? value[index] : undefined;
 
-export function buildOpenMeteoUrl(latitude: number, longitude: number): URL {
+export function buildOpenMeteoUrl(
+  latitude: number,
+  longitude: number,
+  model: OpenMeteoModel = "best_match",
+): URL {
   const url = new URL("https://api.open-meteo.com/v1/forecast");
   url.searchParams.set("latitude", String(latitude));
   url.searchParams.set("longitude", String(longitude));
@@ -69,12 +76,14 @@ export function buildOpenMeteoUrl(latitude: number, longitude: number): URL {
   );
   url.searchParams.set("forecast_days", "7");
   url.searchParams.set("timezone", "America/Toronto");
+  url.searchParams.set("models", model);
   return url;
 }
 
 export function mapOpenMeteo(
   data: unknown,
-): Pick<WeatherState, "current" | "hourly" | "daily"> {
+  model: OpenMeteoModel = "best_match",
+): WeatherForecast {
   const response = data as OpenMeteoForecastDto;
   const current = response.current ?? {};
   const hourly = response.hourly ?? {};
@@ -93,6 +102,7 @@ export function mapOpenMeteo(
   );
 
   return {
+    model,
     current: {
       source: "open-meteo",
       temperatureC: asNumber(current.temperature_2m),
@@ -142,6 +152,10 @@ export function mapOpenMeteo(
 export async function fetchOpenMeteo(
   latitude: number,
   longitude: number,
-): Promise<Pick<WeatherState, "current" | "hourly" | "daily">> {
-  return mapOpenMeteo(await fetchJson(buildOpenMeteoUrl(latitude, longitude)));
+  model: OpenMeteoModel = "best_match",
+): Promise<WeatherForecast> {
+  return mapOpenMeteo(
+    await fetchJson(buildOpenMeteoUrl(latitude, longitude, model)),
+    model,
+  );
 }

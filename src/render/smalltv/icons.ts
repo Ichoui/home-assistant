@@ -4,6 +4,8 @@ import { join } from "node:path";
 export type IconName =
   | "metric-humidity"
   | "metric-indoor"
+  | "metric-sunrise"
+  | "metric-sunset"
   | "metric-temperature"
   | "metric-wind"
   | "weather-clear"
@@ -84,6 +86,14 @@ const ICON_LAYERS: Record<IconName, Layer[]> = {
   ],
   "metric-humidity": [{ color: "#43d3ff" }],
   "metric-indoor": [{ color: "#63e6be" }],
+  "metric-sunrise": [
+    { color: "#ffd43b" },
+    { color: "#ff8a3d", rect: [0, -380, 960, 380] },
+  ],
+  "metric-sunset": [
+    { color: "#fff0b5" },
+    { color: "#bda8ff", rect: [420, -960, 540, 960] },
+  ],
   "metric-temperature": [{ color: "#ff806b" }],
   "metric-wind": [{ color: "#8fd8ff" }],
 };

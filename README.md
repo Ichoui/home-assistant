@@ -16,6 +16,8 @@ L'image présente les 24 prochaines heures sous forme de courbe de température 
 
 Les horaires quotidiens de lever et coucher du soleil proviennent des champs `sunrise` et `sunset` d'Open-Meteo et sont affichés dans la partie supérieure du PNG.
 
+La météo affichée utilise explicitement le modèle Open-Meteo `best_match`. Une seconde requête `gem_seamless` est enregistrée dans `weatherComparisons/gem-seamless` pour comparer localement HRDPS, GEM Regional et GEM Global sans affecter l'image de production. Une indisponibilité GEM ne bloque pas la mise à jour principale.
+
 ## Prérequis
 
 - Node.js 22
