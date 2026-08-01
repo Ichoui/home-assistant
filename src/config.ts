@@ -2,8 +2,8 @@ export const HOME_LOCATION = {
   name: "Saint-Georges",
   region: "Québec",
   country: "Canada",
-  latitude: 46.117,
-  longitude: -70.67,
+  latitude: 46.109300,
+  longitude: -70.633588,
 } as const;
 
 const QUEBEC_LOCATION = {
