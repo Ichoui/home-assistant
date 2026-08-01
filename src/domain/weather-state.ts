@@ -1,4 +1,4 @@
-export type OpenMeteoModel = "best_match" | "gem_seamless";
+export type OpenMeteoModel = "best_match";
 
 export type WeatherForecast = {
   model: OpenMeteoModel;
@@ -75,8 +75,3 @@ export type WeatherState = {
     updatedAt: string | null;
   };
 };
-
-export type WeatherComparisonState = Pick<
-  WeatherState,
-  "location" | "updatedAt" | "forecastModel" | "current" | "hourly" | "daily"
->;

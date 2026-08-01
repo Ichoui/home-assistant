@@ -1,3 +1,4 @@
+// https://www.coordonnees-gps.fr/  to find the coordinates of the location manually !
 export const HOME_LOCATION = {
   name: "Saint-Georges",
   region: "Québec",

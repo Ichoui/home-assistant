@@ -8,6 +8,7 @@ Le projet utilise Firebase Functions v2 et Firestore. Les conditions courantes e
 
 - `refreshWeather` récupère les données météo toutes les 15 minutes et écrit l'état normalisé dans `weather/home`.
 - `getWeather` retourne le document `WeatherState` en JSON.
+- `getHomeAssistantWeather` retourne une version JSON adaptée à une intégration météo Home Assistant, protégée par un Bearer token.
 - `getSmallTvImage` génère une image PNG 240×240 depuis le dernier état enregistré.
 
 Le rendu utilise des Material Symbols SVG embarqués dans le projet. Les codes météo WMO sont associés aux icônes soleil, éclaircies jour/nuit, nuages, brouillard, pluie, pluie verglaçante, neige, orage et grêle. Les silhouettes sont peintes en couches avec des couleurs sémantiques et restent lisibles dans les petits repères horaires. Aucun appel à Google Fonts n'est effectué pendant la génération de l'image.
@@ -16,7 +17,7 @@ L'image présente les 24 prochaines heures sous forme de courbe de température 
 
 Les horaires quotidiens de lever et coucher du soleil proviennent des champs `sunrise` et `sunset` d'Open-Meteo et sont affichés dans la partie supérieure du PNG.
 
-La météo affichée utilise explicitement le modèle Open-Meteo `best_match`. Une seconde requête `gem_seamless` est enregistrée dans `weatherComparisons/gem-seamless` pour comparer localement HRDPS, GEM Regional et GEM Global sans affecter l'image de production. Une indisponibilité GEM ne bloque pas la mise à jour principale.
+La météo affichée utilise explicitement le modèle Open-Meteo `best_match`.
 
 ## Prérequis
 
@@ -98,7 +99,47 @@ Les commandes npm utilisent les URL suivantes :
 ```text
 POST http://127.0.0.1:5001/demo-smalltv-weather/northamerica-northeast1/refreshWeather
 GET  http://127.0.0.1:5001/demo-smalltv-weather/northamerica-northeast1/getWeather
+GET  http://127.0.0.1:5001/demo-smalltv-weather/northamerica-northeast1/getHomeAssistantWeather
 GET  http://127.0.0.1:5001/demo-smalltv-weather/northamerica-northeast1/getSmallTvImage
+```
+
+## Home Assistant
+
+Le endpoint `getHomeAssistantWeather` lit le document privé `weather/home` via l'Admin SDK Firebase et retourne une réponse alignée sur les champs attendus par `WeatherEntity` (https://developers.home-assistant.io/docs/core/entity/weather/) : 
+- `current` contient `condition`, `native_temperature`, `native_apparent_temperature`, `humidity`, `native_precipitation`, `native_wind_speed` et les unités natives.
+- `forecast.hourly` contient les 24 prochaines heures au format `datetime`, `condition`, `native_temperature` et `precipitation_probability`.
+- `forecast.daily` contient 7 jours avec `native_temperature`, `native_templow` et `precipitation_probability`.
+
+Créer le secret utilisé par Home Assistant avant le déploiement :
+
+```bash
+# créer un token aléatoire de 48 octets en base64
+openssl rand -base64 48
+
+firebase functions:secrets:set HOME_ASSISTANT_WEATHER_TOKEN
+npm run deploy
+```
+
+En local, l'émulateur peut lire le token depuis `.secret.local` :
+
+```text
+HOME_ASSISTANT_WEATHER_TOKEN=dev-token
+```
+
+Sur HA, il faudra mettre le bearer token dans la configuration dams `secrets.yaml`
+
+Exemple d'appel :
+
+```bash
+# Dev
+curl --fail --silent --show-error \
+  -H "Authorization: Bearer dev-token" \
+  http://127.0.0.1:5001/demo-smalltv-weather/northamerica-northeast1/getHomeAssistantWeather
+  
+# Prod
+curl --fail --silent --show-error \
+    -H "Authorization: Bearer ton-secret" \
+    https://northamerica-northeast1-TON_PROJECT_ID.cloudfunctions.net/getHomeAssistantWeather
 ```
 
 ## Commandes disponibles

@@ -5,3 +5,5 @@ firebase-debug.log
 *.local
 .env
 .DS_Store
+
+.secret.local
