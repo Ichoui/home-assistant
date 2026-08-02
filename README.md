@@ -105,10 +105,12 @@ GET  http://127.0.0.1:5001/demo-smalltv-weather/northamerica-northeast1/getSmall
 
 ## Home Assistant
 
-Le endpoint `getHomeAssistantWeather` lit le document privé `weather/home` via l'Admin SDK Firebase et retourne une réponse alignée sur les champs attendus par `WeatherEntity` (https://developers.home-assistant.io/docs/core/entity/weather/) : 
-- `current` contient `condition`, `native_temperature`, `native_apparent_temperature`, `humidity`, `native_precipitation`, `native_wind_speed` et les unités natives.
-- `forecast.hourly` contient les 24 prochaines heures au format `datetime`, `condition`, `native_temperature` et `precipitation_probability`.
-- `forecast.daily` contient 7 jours avec `native_temperature`, `native_templow` et `precipitation_probability`.
+Le endpoint `getHomeAssistantWeather` lit le document privé `weather/home` via l'Admin SDK Firebase et retourne une réponse alignée sur les champs attendus par `WeatherEntity` (https://developers.home-assistant.io/docs/core/entity/weather/) :
+
+- `current` contient les conditions courantes, température, ressenti, point de rosée, humidité, précipitation, pression, visibilité, vent, rafales, UV et unités natives.
+- `forecast.hourly` contient les 24 prochaines heures avec condition, température, ressenti, point de rosée, humidité, précipitation, pression, couverture nuageuse, vent, rafales, UV, direction du vent et probabilité de précipitation.
+- `forecast.daily` contient 7 jours avec maximum/minimum, ressenti max, point de rosée moyen, humidité moyenne, pression moyenne, couverture nuageuse moyenne, précipitation totale, vent maximal, rafales maximales, UV maximal, direction dominante et probabilité de précipitation.
+- `supplemental` contient les données utiles aux widgets HA custom mais hors contrat météo standard : modèle Open-Meteo, code météo brut, libellé français, sunrise/sunset, durée du jour, ensoleillement, pression de surface, visibilité brute, alertes MétéoCAN et futurs capteurs `indoor`/`outdoor`.
 
 Créer le secret utilisé par Home Assistant avant le déploiement :
 
@@ -126,7 +128,7 @@ En local, l'émulateur peut lire le token depuis `.secret.local` :
 HOME_ASSISTANT_WEATHER_TOKEN=dev-token
 ```
 
-Sur HA, il faudra mettre le bearer token dans la configuration dams `secrets.yaml`
+Sur HA, il faudra mettre le Bearer token dans la configuration dans `secrets.yaml`.
 
 Exemple d'appel :
 
