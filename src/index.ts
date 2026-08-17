@@ -4,7 +4,6 @@ import { defineSecret } from "firebase-functions/params";
 import { onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { timingSafeEqual } from "node:crypto";
-import { renderSmallTvPng } from "./render/smalltv";
 import { mapWeatherStateForHomeAssistant } from "./services/home-assistant-weather.js";
 import { getWeatherState, refreshWeatherState } from "./services/weather.js";
 
@@ -70,22 +69,5 @@ export const getHomeAssistantWeather = onRequest(
     response
       .set("Cache-Control", "private, max-age=300")
       .json(mapWeatherStateForHomeAssistant(state));
-  },
-);
-
-export const getSmallTvImage = onRequest(
-  { region: FUNCTION_REGION, cors: true },
-  async (_request, response) => {
-    const state = await getWeatherState();
-    if (!state) {
-      response.status(503).send("Les données météo ne sont pas encore disponibles.");
-      return;
-    }
-    const image = await renderSmallTvPng(state);
-    response
-      .set("Content-Type", "image/png")
-      .set("Cache-Control", "public, max-age=300")
-      .status(200)
-      .send(image);
   },
 );

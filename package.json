@@ -1,5 +1,5 @@
 {
-  "name": "smalltv-weather",
+  "name": "home-assistant",
   "version": "0.1.0",
   "private": true,
   "main": "lib/index.js",
@@ -7,21 +7,19 @@
     "node": "22"
   },
   "scripts": {
-    "build": "tsc && mkdir -p lib/assets/icons && cp src/assets/icons/*.svg lib/assets/icons/",
+    "build": "tsc",
     "clean": "rm -rf lib",
-    "dev": "npm run build && firebase emulators:start --project demo-smalltv-weather --only functions,firestore",
-    "refresh": "curl --fail --silent --show-error --request POST http://127.0.0.1:5001/demo-smalltv-weather/northamerica-northeast1/refreshWeather",
-    "weather": "curl --fail --silent --show-error http://127.0.0.1:5001/demo-smalltv-weather/northamerica-northeast1/getWeather",
-    "image": "curl --fail --silent --show-error --output /tmp/smalltv-weather.png http://127.0.0.1:5001/demo-smalltv-weather/northamerica-northeast1/getSmallTvImage && echo 'Image créée : /tmp/smalltv-weather.png'",
+    "dev": "npm run build && firebase emulators:start --project demo-home-assistant --only functions,firestore",
+    "refresh": "curl --fail --silent --show-error --request POST http://127.0.0.1:5001/demo-home-assistant/northamerica-northeast1/refreshWeather",
+    "weather": "curl --fail --silent --show-error http://127.0.0.1:5001/demo-home-assistant/northamerica-northeast1/getWeather",
     "deploy": "firebase deploy --only functions"
   },
   "dependencies": {
-    "firebase-admin": "^13.10.0",
-    "firebase-functions": "^7.3.2",
-    "sharp": "^0.34.5"
+    "firebase-admin": "^14.2.0",
+    "firebase-functions": "^7.3.2"
   },
   "devDependencies": {
-    "@types/node": "^25.9.2",
-    "typescript": "^6.0.3"
+    "@types/node": "^26.2.0",
+    "typescript": "^7.0.2"
   }
 }
