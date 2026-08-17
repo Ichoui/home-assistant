@@ -9,6 +9,8 @@ Le projet utilise Firebase Functions v2 et Firestore. Les conditions courantes e
 - `refreshWeather` récupère les données météo toutes les 15 minutes et écrit l'état normalisé dans `weather/home`.
 - `getWeather` retourne le document `WeatherState` en JSON.
 - `getHomeAssistantWeather` retourne une version JSON adaptée à une intégration météo Home Assistant, protégée par un Bearer token.
+- `getDailyWellness` retourne les données Wellness quotidiennes de deux comptes Intervals.icu, protégées par un Bearer token.
+- `resetDailyWellness` invalide le cache Wellness du jour pour un seul compte, protégée par le même token.
 
 La météo utilise explicitement le modèle Open-Meteo `best_match`.
 
@@ -110,6 +112,104 @@ curl --fail --silent --show-error \
   -H "Authorization: Bearer dev-token" \
   http://127.0.0.1:5001/demo-home-assistant/northamerica-northeast1/getHomeAssistantWeather
 ```
+
+## Daily Wellness Intervals.icu
+
+Les endpoints Wellness lisent les données quotidiennes de deux comptes Intervals.icu fixes : `me` et `partner`. Ils utilisent toujours le jour courant dans le fuseau Québec `America/Toronto`. Aucun client Home Assistant particulier n'est requis : tout client peut interroger l'endpoint GET avec son Bearer token.
+
+Les clés Intervals et le token d'endpoint sont des secrets Firebase. Ne les ajoutez jamais au code, à Firestore, aux logs ou au README :
+
+```bash
+firebase functions:secrets:set INTERVALS_API_KEY_ME
+firebase functions:secrets:set INTERVALS_API_KEY_PARTNER
+firebase functions:secrets:set HOME_ASSISTANT_WELLNESS_ENDPOINT_TOKEN
+```
+
+Pour le développement local, copiez `.secret.local.example` vers `.secret.local` et remplacez les valeurs d'exemple. La configuration non sensible est définie dans `.env` :
+
+```text
+WELLNESS_TIMEZONE=America/Toronto
+```
+
+Ce fuseau est aussi la valeur par défaut du paramètre Firebase ; il est préférable de le conserver afin que les clés de cache et le jour Intervals correspondent au Québec.
+
+### GET `/getDailyWellness`
+
+Seule la méthode `GET` est acceptée. L'endpoint n'accepte aucun paramètre de date et retourne toujours le jour courant Québec :
+
+```bash
+curl \
+  -H "Authorization: Bearer $HOME_ASSISTANT_WELLNESS_ENDPOINT_TOKEN" \
+  "https://<function-url>/getDailyWellness"
+```
+
+Exemple de réponse :
+
+```json
+{
+  "apiVersion": "1",
+  "date": "2026-08-17",
+  "timezone": "America/Toronto",
+  "generatedAt": "2026-08-17T07:00:03.000Z",
+  "accounts": {
+    "me": {
+      "status": "available",
+      "cache": {
+        "hit": true,
+        "stale": false,
+        "fetchedAt": "2026-08-17T06:45:00.000Z",
+        "expiresAt": "2026-08-17T07:45:00.000Z"
+      },
+      "sourceUpdatedAt": "2026-08-17T06:42:00.000Z",
+      "wellness": {
+        "id": "2026-08-17",
+        "readiness": 78,
+        "hrv": 54.7,
+        "futureIntervalsField": null
+      }
+    },
+    "partner": {
+      "status": "pending",
+      "cache": {
+        "hit": false,
+        "stale": false,
+        "fetchedAt": "2026-08-17T07:00:03.000Z",
+        "expiresAt": "2026-08-17T07:05:03.000Z"
+      },
+      "sourceUpdatedAt": null,
+      "wellness": null
+    }
+  }
+}
+```
+
+`wellness` est l'objet Intervals.icu complet, sans liste blanche : les propriétés inconnues, futures et les valeurs `null` sont conservées dans Firestore puis renvoyées telles quelles. Les statuts sont `available`, `pending`, `missing`, `error` et `invalidated`. Une réponse 404 d'Intervals devient `missing`; une réponse 200 sans objet Wellness exploitable devient `pending`.
+
+Le cache est séparé par date et compte dans `wellnessCache/{yyyy-MM-dd}__{accountId}`. Il dure 60 minutes pour `available`, 5 minutes pour `pending` et `missing`, et 2 minutes pour `error`. Lorsqu'un rafraîchissement échoue mais qu'une ancienne donnée est disponible, elle est renvoyée avec `cache.stale: true` et sera retentée après 2 minutes. L'échec d'un compte ne bloque jamais l'autre. Les statuts métier renvoient HTTP 200; seuls un token incorrect (401), une méthode incorrecte (405) ou une erreur globale (500) donnent une erreur HTTP.
+
+### DELETE `/resetDailyWellness`
+
+Seule la méthode `DELETE` est acceptée. Elle invalide le cache Firestore du jour courant pour `me` ou `partner`, sans appeler ni modifier Intervals.icu :
+
+```bash
+curl \
+  -X DELETE \
+  -H "Authorization: Bearer $HOME_ASSISTANT_WELLNESS_ENDPOINT_TOKEN" \
+  "https://<function-url>/resetDailyWellness?account=me"
+```
+
+La réponse confirme l'invalidation :
+
+```json
+{
+  "ok": true,
+  "account": "me",
+  "date": "2026-08-17",
+  "status": "invalidated"
+}
+```
+
+Le reset est répétable sans erreur, ne touche jamais l'autre compte et incrémente une génération de cache. Cette génération empêche une requête commencée avant le reset de réécrire une ancienne réponse. Le prochain GET relira donc immédiatement Intervals.icu pour le compte invalidé.
 
 ## Commandes disponibles
 
